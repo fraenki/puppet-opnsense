@@ -38,9 +38,9 @@ Of course, it would be desirable to have providers for packages and cronjobs too
 This will create a user, but does not grant any permissions.
 
     pfsense_user { 'user001':
-      ensure => 'present',
+      ensure   => 'present',
       password => '$1$dSJImFph$GvZ7.1UbuWu.Yb8etC0re.',
-      comment => 'pfsense test user',
+      comment  => 'pfsense test user',
     }
 
 In our next example the user will have shell access (SSH) to the box and full access to the webGUI.
@@ -80,7 +80,7 @@ NOTE: The providers are NOT aware of privilege inheritance, see _Limitations_ fo
 This module does NOT purge unmanaged resources. So you need to define a resource as 'absent' if you want it to be removed:
 
     pfsense_user { 'user001':
-      ensure => 'absent',
+      ensure   => 'absent',
       password => '$1$dSJImFph$GvZ7.1UbuWu.Yb8etC0re.',
     }
 
