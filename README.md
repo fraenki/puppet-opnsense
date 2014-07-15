@@ -77,7 +77,7 @@ NOTE: The providers are NOT aware of privilege inheritance, see _Limitations_ fo
 
 ###Deleting resources
 
-This module does NOT purge unmanaged resources. So you need to define a resource as 'absent' if you want it to be removed:
+This provider does NOT purge unmanaged resources. So you need to define a resource as 'absent' if you want it to be removed:
 
     pfsense_user { 'user001':
       ensure   => 'absent',
