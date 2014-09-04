@@ -1,6 +1,5 @@
 require 'base64'
 require 'fileutils'
-require 'open3'
 require 'rexml/document'
 
 class Puppet::Provider::Pfsense < Puppet::Provider
