@@ -7,6 +7,7 @@
 - [Usage](#usage)
   - [Create a user](#create-a-user)
   - [Create a group](#create-a-group)
+  - [Manage packages](#manage-packages)
   - [pfSense facts](#pfsense-facts)
 - [Reference](#reference)
   - [Feature overview](#feature-overview)
@@ -27,9 +28,10 @@ This is intended to be a growing collection of providers and facts. In its curre
 
 * pfsense_user: a provider to manage pfSense users
 * pfsense_group: a provider to manage pfSense groups
+* package: a provider to manage native pfSense packages
 * pfsense_version: facts to gather pfSense version information
 
-Of course, it would be desirable to have providers for packages and cronjobs too. Contributions are welcome! :-)
+Of course, it would be desirable to have a provider for cronjobs too. Contributions are welcome! :-)
 
 ##Usage
 
@@ -74,6 +76,20 @@ In this example the group will inherit privileges to its members:
     }
 
 NOTE: The providers are NOT aware of privilege inheritance, see _Limitations_ for details.
+
+###Manage packages
+
+You need to enable a helper class. This will install a command line tool to keep the provider simple:
+
+    class { 'pfsense': }
+
+Now you can use it like any other package provider:
+
+    package { 'iftop':
+      ensure => 'present',
+    }
+
+NOTE: Package names on pfSense are case-sensitive. You need to write 'Cron' instead of 'cron' to install the package.
 
 ###Deleting resources
 
