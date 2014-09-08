@@ -1,5 +1,5 @@
 name 'fraenki-pfsense'
-version '0.2.0'
+version '0.2.1'
 source 'git://github.com/fraenki/puppet-pfsense'
 author 'Frank Wall'
 license 'Simplified BSD License'
