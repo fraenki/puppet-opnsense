@@ -19,11 +19,11 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     end
   end
 
-  def read_config()
+  def self.read_config
     return REXML::Document.new File.read('/cf/conf/config.xml')
   end
 
-  def lock_config
+  def self.lock_config
     f = File.open('/tmp/config.lock', File::RDWR|File::CREAT, 0666)
     if !f.flock(File::LOCK_NB|File::LOCK_EX)
       f.close
@@ -33,7 +33,7 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     Puppet.debug "Set LOCK_EX on pfSense configuration"
   end
 
-  def write_config(config)
+  def self.write_config(config)
     fail "Expected an REXML::Document but got \'#{config.class.name}\' instead" if config.class.name != 'REXML::Document'
     # New config revision
     xmldoc = set_revision(config)
@@ -52,7 +52,7 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     return true
   end
 
-  def clear_cache
+  def self.clear_cache
     file = '/tmp/config.cache'
     if File.file?(file)
       Puppet.debug "Deleting pfSense config cache"
@@ -60,7 +60,7 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     end
   end
 
-  def unlock_config
+  def self.unlock_config
     f = File.open('/tmp/config.lock', File::RDWR|File::CREAT, 0666)
     if !f.flock(File::LOCK_UN)
       f.close
@@ -70,7 +70,7 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     f.close
   end
 
-  def set_revision(xmldoc)
+  def self.set_revision(xmldoc)
     fail "Expected an REXML::Document but got \'#{xmldoc.class.name}\' instead" if xmldoc.class.name != 'REXML::Document'
     _revision = REXML::Element.new 'revision'
     _time     = REXML::Element.new 'time'

@@ -11,19 +11,22 @@ Puppet::Type.type(:package).provide(:pfsense, :parent => Puppet::Provider::Packa
   confine :pfsense => :true
   defaultfor :pfsense => :true
 
+  has_feature :versionable
   has_feature :upgradeable
 
   def install
-    lock_config
+    debug 'pfsense: install called'
+    Puppet::Provider::Pfsense.lock_config
     pfsense_pkg(['action=install',"pkg=#{@resource[:name]}"])
-    unlock_config
+    Puppet::Provider::Pfsense.unlock_config
     @property_hash[:ensure] = :present
   end
 
   def uninstall
-    lock_config
+    debug 'pfsense: uninstall called'
+    Puppet::Provider::Pfsense.lock_config
     pfsense_pkg(['action=deinstall',"pkg=#{@resource[:name]}"])
-    unlock_config
+    Puppet::Provider::Pfsense.unlock_config
     @property_hash.clear
   end
 
