@@ -1,43 +1,20 @@
-# == Class: pfsense
+# == Class: opnsense
 #
-# This module handles pfsense provider requirements.
+# This module handles opnsense provider requirements.
 #
 # === Examples
 #
-#  class { 'pfsense':
-#    pkg => false,
-#  }
+#  class { 'opnsense': }
 #
-class pfsense(
-  $pkg = true,
-) {
-
-  # Input validation
-  include stdlib
-  validate_bool($pkg)
+class opnsense {
 
   case $::operatingsystem {
     'FreeBSD': { }
     default: { fail("OS $::operatingsystem is not supported") }
   }
 
-  if ! $::pfsense {
-    fail("Requires a pfSense appliance")
-  }
-
-  $directory = '/usr/local/sbin'
-  $pkgwrapper = 'pfsense_pkg'
-
-  if $pkg {
-
-    file { "${directory}/${pkgwrapper}":
-      ensure  => file,
-      source  => "puppet:///modules/${module_name}/${pkgwrapper}",
-      owner   => root,
-      group   => wheel,
-      mode    => '0755',
-    }
-
+  if ! $::opnsense {
+    fail("Requires a OPNsense appliance")
   }
 
 }

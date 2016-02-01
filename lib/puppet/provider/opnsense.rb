@@ -2,8 +2,8 @@ require 'base64'
 require 'fileutils'
 require 'rexml/document'
 
-class Puppet::Provider::Pfsense < Puppet::Provider
-  desc "pfSense common"
+class Puppet::Provider::Opnsense < Puppet::Provider
+  desc "OPNsense common"
 
   def exists?
     @property_hash[:ensure] == :present
@@ -20,17 +20,17 @@ class Puppet::Provider::Pfsense < Puppet::Provider
   end
 
   def self.read_config
-    return REXML::Document.new File.read('/cf/conf/config.xml')
+    return REXML::Document.new File.read('/conf/config.xml')
   end
 
   def self.lock_config
     f = File.open('/tmp/config.lock', File::RDWR|File::CREAT, 0666)
     if !f.flock(File::LOCK_NB|File::LOCK_EX)
       f.close
-      fail "Unable to get exclusive lock on pfSense configuration"
+      fail "Unable to get exclusive lock on OPNsense configuration"
     end
     f.close
-    Puppet.debug "Set LOCK_EX on pfSense configuration"
+    Puppet.debug "Set LOCK_EX on OPNsense configuration"
   end
 
   def self.write_config(config)
@@ -43,11 +43,11 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     formatter.width = 10000
     formatter.compact = true
     formatter.write(xmldoc.root, _xmldoc = "")
-    File.open('/cf/conf/config.xml', 'w') do |file|
+    File.open('/conf/config.xml', 'w') do |file|
       file.write(_xmldoc)
     end
-    Puppet.debug "Changes to pfSense configuration written to disk"
-    # Clear config cache to make changes visible in pfSense GUI
+    Puppet.debug "Changes to OPNsense configuration written to disk"
+    # Clear config cache to make changes visible in OPNsense GUI
     clear_cache
     return true
   end
@@ -55,7 +55,7 @@ class Puppet::Provider::Pfsense < Puppet::Provider
   def self.clear_cache
     file = '/tmp/config.cache'
     if File.file?(file)
-      Puppet.debug "Deleting pfSense config cache"
+      Puppet.debug "Deleting OPNsense config cache"
       File.delete(file)
     end
   end
@@ -64,9 +64,9 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     f = File.open('/tmp/config.lock', File::RDWR|File::CREAT, 0666)
     if !f.flock(File::LOCK_UN)
       f.close
-      fail "Unable to remove exclusive lock on pfSense configuration"
+      fail "Unable to remove exclusive lock on OPNsense configuration"
     end
-    Puppet.debug "Set LOCK_UN on pfSense configuration"
+    Puppet.debug "Set LOCK_UN on OPNsense configuration"
     f.close
   end
 
@@ -83,13 +83,13 @@ class Puppet::Provider::Pfsense < Puppet::Provider
     _revision.add_element _descr
     _revision.add_element _user
 
-    if REXML::XPath.first(xmldoc, "//pfsense/revision")
-      _pfsense = REXML::XPath.first(xmldoc, "//pfsense")
-      _pfsense.delete_element("revision")
-      Puppet.debug "Deleted old revision from pfSense configuration"
+    if REXML::XPath.first(xmldoc, "//opnsense/revision")
+      _opnsense = REXML::XPath.first(xmldoc, "//opnsense")
+      _opnsense.delete_element("revision")
+      Puppet.debug "Deleted old revision from OPNsense configuration"
     end
 
-    xmldoc.elements["pfsense"].add_element _revision
+    xmldoc.elements["opnsense"].add_element _revision
     return xmldoc
   end
 

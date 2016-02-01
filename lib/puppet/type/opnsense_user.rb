@@ -1,7 +1,7 @@
 require 'puppet/property/list'
-Puppet::Type.newtype(:pfsense_user) do
+Puppet::Type.newtype(:opnsense_user) do
 
-  desc 'Manage additional users on pfSense.'
+  desc 'Manage additional users on OPNsense.'
 
   ensurable
 

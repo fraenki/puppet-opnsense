@@ -1,14 +1,14 @@
-require File.join(File.dirname(__FILE__), '..', 'pfsense')
+require File.join(File.dirname(__FILE__), '..', 'opnsense')
 require 'rexml/document'
 
-Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Provider::Pfsense) do
-  desc "Group management on pfSense."
+Puppet::Type.type(:opnsense_group).provide(:opnsense_group, :parent => Puppet::Provider::Opnsense) do
+  desc "Group management on OPNsense."
 
   commands :pw => 'pw'
 
   def create
     # Lock config
-    Puppet::Provider::Pfsense.lock_config
+    Puppet::Provider::Opnsense.lock_config
 
     # Fail on system groups
     if !sysgroup(@resource[:name])
@@ -47,19 +47,19 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
     addcmd
 
     # Add group to xml configuration
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    xmldoc.elements["pfsense/system"].add_element _group
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    xmldoc.elements["opnsense/system"].add_element _group
 
     # nextgid++
     nextgid = newgid.to_i
     Puppet.debug "Set next GID to #{nextgid}"
-    xmldoc.elements["pfsense/system/nextgid"].text = nextgid + 1
+    xmldoc.elements["opnsense/system/nextgid"].text = nextgid + 1
 
     # Write changes to disk
-    Puppet::Provider::Pfsense.write_config(xmldoc) || fail("Failed to write config")
+    Puppet::Provider::Opnsense.write_config(xmldoc) || fail("Failed to write config")
 
     # Unlock config
-    Puppet::Provider::Pfsense.unlock_config
+    Puppet::Provider::Opnsense.unlock_config
 
     @property_hash[:gid] = newgid
     @property_hash[:ensure] = :present
@@ -67,12 +67,12 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
 
   def destroy
     # Edit XML configuration
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    if REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']")
-      _system = REXML::XPath.first(xmldoc, "//pfsense/system")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    if REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']")
+      _system = REXML::XPath.first(xmldoc, "//opnsense/system")
       _system.delete_element("group[name='#{@resource[:name]}']")
       Puppet.debug "Deleted group '#{@resource[:name]}'"
-      Puppet::Provider::Pfsense.write_config(xmldoc)
+      Puppet::Provider::Opnsense.write_config(xmldoc)
     end
     # Delete from system
     pw("groupdel", @resource[:name])
@@ -85,19 +85,19 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
 
   def comment=(value)
     # Change xml
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    if REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']/descr")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    if REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']/descr")
       # Change value
-      _comment  = REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']/descr")
+      _comment  = REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']/descr")
       _comment.text = REXML::CData.new(value)
     else
       # Add comment
-      _group = REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']")
+      _group = REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']")
       _comment = REXML::Element.new 'descr'
       _comment.text = REXML::CData.new(value)
       _group.add_element _comment
     end
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @property_hash[:comment] = value
   end
 
@@ -106,16 +106,16 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
   end
 
   def privileges=(array)
-    xmldoc = Puppet::Provider::Pfsense.read_config
+    xmldoc = Puppet::Provider::Opnsense.read_config
     array = [] if array.include?(:absent)
     # Get current privs
     privs = []
-    REXML::XPath.each(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']/priv"){ |p|
+    REXML::XPath.each(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']/priv"){ |p|
       privs << p.get_text.value
     }
     # Delete privs
     privs.each do |priv|
-      _group = REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']")
+      _group = REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']")
       if !array.include?(priv)
         _group.delete_element("priv[.='#{priv}']")
         Puppet.debug "Deleted privilege '#{priv}' from group #{@resource[:name]}"
@@ -123,8 +123,8 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
     end
     # Add privs
     array.each do |value|
-      if !REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']/priv[.='#{value}']")
-        _group = REXML::XPath.first(xmldoc, "//pfsense/system/group[name='#{@resource[:name]}']")
+      if !REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']/priv[.='#{value}']")
+        _group = REXML::XPath.first(xmldoc, "//opnsense/system/group[name='#{@resource[:name]}']")
         _priv  = REXML::Element.new 'priv'
         _priv.text = value
         _group.add_element _priv
@@ -132,7 +132,7 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
       end
     end
     # Write changes to disk
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @property_hash[:privileges] = array
   end
 
@@ -144,9 +144,9 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
   def self.instances
     pfgroups = []
 
-    xmldoc = REXML::Document.new File.read('/cf/conf/config.xml')
+    xmldoc = REXML::Document.new File.read('/conf/config.xml')
 
-    xmldoc.elements.each("pfsense/system/group"){ |e|
+    xmldoc.elements.each("opnsense/system/group"){ |e|
       if defined? e.elements["descr"].get_text and defined? e.elements["descr"].get_text.value
         _comment = e.elements["descr"].get_text.value
       end
@@ -157,7 +157,7 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
         }
       end
       # Initialize @property_hash
-      pfgroups << new({ 
+      opngroups << new({ 
         :name           => e.elements["name"].get_text.value,
         :ensure         => :present,
         :comment        => _comment.nil? ? nil : _comment,
@@ -165,12 +165,12 @@ Puppet::Type.type(:pfsense_group).provide(:pfsense_group, :parent => Puppet::Pro
         :gid            => e.elements["gid"].get_text.value,
       })
     }
-    pfgroups
+    opngroups
   end
 
   def next_gid
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    xmldoc.elements["pfsense/system/nextgid"].get_text.value || fail("Failed to query next GID")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    xmldoc.elements["opnsense/system/nextgid"].get_text.value || fail("Failed to query next GID")
   end
 
   def addcmd

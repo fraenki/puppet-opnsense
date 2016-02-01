@@ -1,4 +1,4 @@
-#pfsense
+#opnsense
 
 ##Table of Contents
 
@@ -8,7 +8,7 @@
   - [Create a user](#create-a-user)
   - [Create a group](#create-a-group)
   - [Manage packages](#manage-packages)
-  - [pfSense facts](#pfsense-facts)
+  - [OPNsense facts](#opnsense-facts)
 - [Reference](#reference)
   - [Feature overview](#feature-overview)
   - [Additional user parameters](#additional-user-parameters)
@@ -18,18 +18,18 @@
 
 ##Overview
 
-This is a collection of providers and facts to manage pfSense firewalls.
+This is a collection of providers and facts to manage OPNsense firewalls.
 
-NOTE: This is NOT related to the pfSense project in any way. Do NOT ask the pfSense developers for support.
+NOTE: This is NOT related to the OPNsense project in any way. Do NOT ask the OPNsense developers for support.
 
 ##Module Description
 
 This is intended to be a growing collection of providers and facts. In its current state it provides the following features:
 
-* pfsense_user: a provider to manage pfSense users
-* pfsense_group: a provider to manage pfSense groups
-* package: a provider to manage native pfSense packages
-* pfsense_version: facts to gather pfSense version information
+* opnsense_user: a provider to manage OPNsense users
+* opnsense_group: a provider to manage OPNsense groups
+* package: a provider to manage native OPNsense packages
+* opnsense_version: facts to gather OPNsense version information
 
 Of course, it would be desirable to have a provider for cronjobs too. Contributions are welcome! :-)
 
@@ -39,18 +39,18 @@ Of course, it would be desirable to have a provider for cronjobs too. Contributi
 
 This will create a user, but does not grant any permissions.
 
-    pfsense_user { 'user001':
+    opnsense_user { 'user001':
       ensure   => 'present',
       password => '$1$dSJImFph$GvZ7.1UbuWu.Yb8etC0re.',
-      comment  => 'pfsense test user',
+      comment  => 'opnsense test user',
     }
 
 In our next example the user will have shell access (SSH) to the box and full access to the webGUI.
 
-    pfsense_user { 'user001':
+    opnsense_user { 'user001':
       ensure         => 'present',
       password       => '$1$dSJImFph$GvZ7.1UbuWu.Yb8etC0re.',
-      comment        => 'pfsense test user',
+      comment        => 'opnsense test user',
       privileges     => [ 'user-shell-access', 'page-all' ],
       authorizedkeys => [
         'ssh-rsa AAAAksdjfkjsdhfkjhsdfkjhkjhkjhkj user1@example.com',
@@ -62,16 +62,16 @@ In our next example the user will have shell access (SSH) to the box and full ac
 
 This will create a fully functional group:
 
-    pfsense_group { 'group001':
+    opnsense_group { 'group001':
       ensure  => 'present',
-      comment => 'pfsense test group',
+      comment => 'opnsense test group',
     }
 
 In this example the group will inherit privileges to its members:
 
-    pfsense_group { 'group001':
+    opnsense_group { 'group001':
       ensure     => 'present',
-      comment    => 'pfsense test group',
+      comment    => 'opnsense test group',
       privileges => [ 'user-shell-access', 'page-all' ],
     }
 
@@ -81,7 +81,7 @@ NOTE: The providers are NOT aware of privilege inheritance, see _Limitations_ fo
 
 You need to enable a helper class. This will install a command line tool to keep the provider simple:
 
-    class { 'pfsense': }
+    class { 'opnsense': }
 
 Now you can use it like any other package provider:
 
@@ -89,43 +89,43 @@ Now you can use it like any other package provider:
       ensure => 'present',
     }
 
-NOTE: Package names on pfSense are case-sensitive. You need to write 'Cron' instead of 'cron' to install the package.
+NOTE: Package names on OPNsense are case-sensitive. You need to write 'Cron' instead of 'cron' to install the package.
 
 ###Deleting resources
 
 This provider does NOT purge unmanaged resources. So you need to define a resource as 'absent' if you want it to be removed:
 
-    pfsense_user { 'user001':
+    opnsense_user { 'user001':
       ensure   => 'absent',
       password => '$1$dSJImFph$GvZ7.1UbuWu.Yb8etC0re.',
     }
 
-    pfsense_group { 'group001':
+    opnsense_group { 'group001':
       ensure  => 'absent',
     }
 
-###pfSense facts
+###OPNsense facts
 
-    pfsense => true
-    pfsense_version => 2.1.4-RELEASE
-    pfsense_version_base => 8.3
-    pfsense_version_kernel => 8.1
+    opnsense => true
+    opnsense_version => 2.1.4-RELEASE
+    opnsense_version_base => 8.3
+    opnsense_version_kernel => 8.1
 
 ##Reference
 
 ###Feature overview
 
-pfsense.rb:
+opnsense.rb:
 * base provider, includes common functions
 * read/write config.xml, clear cache, config revisions
 
-pfsense_user.rb:
+opnsense_user.rb:
 * user management
 * ssh key management
 * user privilege management
 * account expiry
 
-pfsense_group.rb:
+opnsense_group.rb:
 * group management
 * group privilege management
 
@@ -141,16 +141,16 @@ To remove expiry date, set it to absent:
 
 ###Privileges
 
-You must specify user/group privileges by using the internal pfSense names. The provider will not even try to validate privilege names, because pfSense silently ignores invalid privileges.
+You must specify user/group privileges by using the internal OPNsense names. The provider will not even try to validate privilege names, because OPNsense silently ignores invalid privileges.
 
-A complete list of pfSense privileges is available in _priv.defs.inc_ from the pfSense repository:
-https://github.com/pfsense/pfsense/blob/master/etc/inc/priv.defs.inc
+A complete list of OPNsense privileges is available in _priv.defs.inc_ from the OPNsense repository:
+https://github.com/opnsense/opnsense/blob/master/etc/inc/priv.defs.inc
 
 ###Known limitations
 
 You need to be aware of the following limitations:
 
-* No safety net. If you delete the _admin_ user your pfSense firewall is lost.
+* No safety net. If you delete the _admin_ user your OPNsense firewall is lost.
 * User/group providers are NOT aware of group privilege inheritance.
 * The indention of config.xml will be changed. Prepare for a huge diff when making changes.
 * Removing all unmanaged resources (purge => true) is NOT supported.

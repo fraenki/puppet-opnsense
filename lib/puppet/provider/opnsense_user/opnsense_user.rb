@@ -1,17 +1,17 @@
-require File.join(File.dirname(__FILE__), '..', 'pfsense')
+require File.join(File.dirname(__FILE__), '..', 'opnsense')
 require 'base64'
 require 'fileutils'
 require 'open3'
 require 'rexml/document'
 
-Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provider::Pfsense) do
-  desc "User management on pfSense."
+Puppet::Type.type(:opnsense_user).provide(:opnsense_user, :parent => Puppet::Provider::Opnsense) do
+  desc "User management on OPNsense."
 
   commands :pw => 'pw'
 
   def create
     # Lock config
-    Puppet::Provider::Pfsense.lock_config
+    Puppet::Provider::Opnsense.lock_config
 
     # Fail on system users
     if !sysuser(@resource[:name])
@@ -76,9 +76,9 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     # Write authorizedkeys to file
     _keysdir = "/home/#{@resource[:name]}" + '/.ssh'
     _keysgroup = 'nobody'
-    # Handle special user 'admin'
-    if @resource[:name] == 'admin'
-      _keysdir = '/root' + '/.ssh' if @resource[:name] == 'admin'
+    # Handle special user 'root'
+    if @resource[:name] == 'root'
+      _keysdir = '/root' + '/.ssh' if @resource[:name] == 'root'
       _keysgroup = 'wheel'
     end
     _keysfile = _keysdir + '/authorized_keys'
@@ -92,19 +92,19 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     FileUtils.chmod 0700, _keysdir
 
     # Add user to xml configuration
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    xmldoc.elements["pfsense/system"].add_element _user
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    xmldoc.elements["opnsense/system"].add_element _user
 
     # nextuid++
     nextuid = newuid.to_i
     Puppet.debug "Set next UID to #{nextuid}"
-    xmldoc.elements["pfsense/system/nextuid"].text = nextuid + 1
+    xmldoc.elements["opnsense/system/nextuid"].text = nextuid + 1
 
     # Write changes to disk
-    Puppet::Provider::Pfsense.write_config(xmldoc) || fail("Failed to write config")
+    Puppet::Provider::Opnsense.write_config(xmldoc) || fail("Failed to write config")
 
     # Unlock config
-    Puppet::Provider::Pfsense.unlock_config
+    Puppet::Provider::Opnsense.unlock_config
 
     @property_hash[:uid] = newuid
     @property_hash[:ensure] = :present
@@ -112,12 +112,12 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
 
   def destroy
     # Edit XML configuration
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    if REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
-      _system = REXML::XPath.first(xmldoc, "//pfsense/system")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    if REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
+      _system = REXML::XPath.first(xmldoc, "//opnsense/system")
       _system.delete_element("user[name='#{@resource[:name]}']")
       Puppet.debug "Deleted user '#{@resource[:name]}'"
-      Puppet::Provider::Pfsense.write_config(xmldoc)
+      Puppet::Provider::Opnsense.write_config(xmldoc)
     end
     # Delete from system
     pw("userdel", @resource[:name], "-r")
@@ -133,9 +133,9 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     # Write keys to file
     _keysdir = "/home/#{@resource[:name]}" + '/.ssh' 
     _keysgroup = 'nobody'
-    # Handle special user 'admin'
-    if @resource[:name] == 'admin'
-      _keysdir = '/root' + '/.ssh' if @resource[:name] == 'admin'
+    # Handle special user 'root'
+    if @resource[:name] == 'root'
+      _keysdir = '/root' + '/.ssh' if @resource[:name] == 'root'
       _keysgroup = 'wheel'
     end
     _keysfile = _keysdir + '/authorized_keys'
@@ -147,20 +147,20 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     FileUtils.chmod 0600, _keysfile
     FileUtils.chmod 0700, _keysdir
     # Change xml
-    xmldoc = Puppet::Provider::Pfsense.read_config
+    xmldoc = Puppet::Provider::Opnsense.read_config
     _keys = format_keys(value)
-    if REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/authorizedkeys")
+    if REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/authorizedkeys")
       # Change value
-      _authorizedkeys = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/authorizedkeys")
+      _authorizedkeys = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/authorizedkeys")
       _authorizedkeys.text = _keys
     else
       # Add authorizedkeys
-      _usr = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
+      _usr = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
       _authorizedkeys= REXML::Element.new 'authorizedkeys'
       _authorizedkeys.text = _keys
       _usr.add_element _authorizedkeys
     end
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @property_hash[:authorizedkeys] = value
   end
 
@@ -172,19 +172,19 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     # Change comment
     pw("usermod", @resource[:name], "-c", "\'#{value}\'")
     # Change xml
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    if REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/descr")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    if REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/descr")
       # Change value
-      _comment  = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/descr")
+      _comment  = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/descr")
       _comment.text = REXML::CData.new(value)
     else
       # Add comment
-      _usr = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
+      _usr = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
       _comment = REXML::Element.new 'descr'
       _comment.text = REXML::CData.new(value)
       _usr.add_element _comment
     end
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @property_hash[:comment] = value
   end
 
@@ -197,23 +197,23 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     _exp = value.to_s.split("-").reverse.join("-")
     _exp = 0 if value == :absent
     pw('usermod', @resource[:name], '-e', _exp)
-    # pfSense uses DD/MM/YYYY
+    # OPNsense uses DD/MM/YYYY
     _pfexp = value.to_s.split("-").reverse.join("/")
     _pfexp = '' if value == :absent
     # Change xml
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    if REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/expires")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    if REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/expires")
       # Change value
-      _expires = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/expires")
+      _expires = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/expires")
       _expires.text = _pfexp
     else
       # Add comment
-      _usr = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
+      _usr = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
       _expires = REXML::Element.new 'expires'
       _expires.text = _pfexp
       _usr.add_element _expires
     end
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @property_hash[:expiry]
   end
 
@@ -240,19 +240,19 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     stdin.puts(value)
     stdin.close
     # Change xml
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    if REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/password")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    if REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/password")
       # Change value
-      _pw = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/password")
+      _pw = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/password")
       _pw.text = value
     else
       # Add password
-      _usr = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
+      _usr = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
       _pw = REXML::Element.new 'password'
       _pw.text = value
       _usr.add_element _pw
     end
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @property_hash[:password] = value
   end
 
@@ -261,16 +261,16 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
   end
 
   def privileges=(array)
-    xmldoc = Puppet::Provider::Pfsense.read_config
+    xmldoc = Puppet::Provider::Opnsense.read_config
     array = [] if array.include?(:absent)
     # Get current privs
     privs = []
-    REXML::XPath.each(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/priv"){ |p|
+    REXML::XPath.each(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/priv"){ |p|
       privs << p.get_text.value
     }
     # Delete privs
     privs.each do |priv|
-      _usr = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
+      _usr = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
       if !array.include?(priv)
         _usr.delete_element("priv[.='#{priv}']")
         Puppet.debug "Deleted privilege '#{priv}' from user #{@resource[:name]}"
@@ -278,8 +278,8 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     end
     # Add privs
     array.each do |value|
-      if !REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']/priv[.='#{value}']")
-        _usr = REXML::XPath.first(xmldoc, "//pfsense/system/user[name='#{@resource[:name]}']")
+      if !REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']/priv[.='#{value}']")
+        _usr = REXML::XPath.first(xmldoc, "//opnsense/system/user[name='#{@resource[:name]}']")
         _priv = REXML::Element.new 'priv'
         _priv.text = value
         _usr.add_element _priv
@@ -292,7 +292,7 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
     Puppet.debug "Shell for user #{@resource[:name]} was to #{_eval['shell']}"
     lockcmd(_eval['lock'].to_s)
     # Write changes to disk
-    Puppet::Provider::Pfsense.write_config(xmldoc)
+    Puppet::Provider::Opnsense.write_config(xmldoc)
     @resource[:lockstate] = _eval['lock']
     @resource[:shell] = _eval['shell']
     @property_hash[:privileges] = array
@@ -310,9 +310,9 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
   def self.instances
     pfusers = []
 
-    xmldoc = REXML::Document.new File.read('/cf/conf/config.xml')
+    xmldoc = REXML::Document.new File.read('/conf/config.xml')
 
-    xmldoc.elements.each("pfsense/system/user"){ |e|
+    xmldoc.elements.each("opnsense/system/user"){ |e|
       if defined? e.elements["authorizedkeys"].get_text and defined? e.elements["authorizedkeys"].get_text.value
         _authorizedkeys = []
         Base64.decode64(e.elements["authorizedkeys"].get_text.value).split(/\r?\n|\r/).each { |line|
@@ -323,7 +323,7 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
         #if e.elements["expires"].get_text.value =~ /^(\d{2})\/(\d{2})\/(\d{4})$/
         _expires = e.elements["expires"].get_text.value.split("/").reverse.join("-")
       end
-      if e.elements["name"].get_text.value == 'admin'
+      if e.elements["name"].get_text.value == 'root'
         _home = '/root'
       else
         _home = '/home/' + e.elements["name"].get_text.value
@@ -358,7 +358,7 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
         _lock = 'lock'
       end
       # Initialize @property_hash
-      pfusers << new({ 
+      opnusers << new({ 
         :name           => e.elements["name"].get_text.value,
         :ensure         => :present,
         :authorizedkeys => _authorizedkeys.nil? ? [:absent] : _authorizedkeys,
@@ -373,12 +373,12 @@ Puppet::Type.type(:pfsense_user).provide(:pfsense_user, :parent => Puppet::Provi
         :uid            => e.elements["uid"].get_text.value,
       })
     }
-    pfusers
+    opnusers
   end
 
   def next_uid
-    xmldoc = Puppet::Provider::Pfsense.read_config
-    xmldoc.elements["pfsense/system/nextuid"].get_text.value || fail("Failed to query next UID")
+    xmldoc = Puppet::Provider::Opnsense.read_config
+    xmldoc.elements["opnsense/system/nextuid"].get_text.value || fail("Failed to query next UID")
   end
 
   def addcmd

@@ -1,7 +1,7 @@
 require 'puppet/property/list'
-Puppet::Type.newtype(:pfsense_group) do
+Puppet::Type.newtype(:opnsense_group) do
 
-  desc 'Manage additional groups on pfSense.'
+  desc 'Manage additional groups on OPNsense.'
 
   ensurable
 
