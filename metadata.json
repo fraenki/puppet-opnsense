@@ -1,6 +1,6 @@
 {
   "name": "fraenki-opnsense",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Frank Wall",
   "summary": "Providers and facts for OPNsense",
   "license": "BSD-2-Clause",
