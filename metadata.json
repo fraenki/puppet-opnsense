@@ -9,10 +9,19 @@
   "issues_url": "https://github.com/fraenki/puppet-opnsense/issues",
   "description": "This is a collection of providers and facts to manage OPNsense firewalls.",
   "requirements": [
-    { "name": "puppet", "version_requirement": "3.x" },
-    { "name": "pe", "version_requirement": "3.x" }
+    {
+      "name": "puppet",
+      "version_requirement": ">= 2.7.0 < 5.0.0"
+    }
   ],
   "operatingsystem_support": [
-    { "operatingsystem": "FreeBSD" }
-  ]
+    {
+      "operatingsystem": "FreeBSD",
+      "operatingsystemrelease": [
+        "9",
+        "10",
+        "11"
+      ]
+    }
+  ],
 }

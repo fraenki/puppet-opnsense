@@ -16,6 +16,34 @@ if File.exist? '/conf/config.xml'
         version.chomp
       end
     end
+
+    Facter.add(:opnsense_major) do
+      confine :kernel => "FreeBSD"
+      setcode do
+        Facter.value(:opnsense_version).split('.')[0]
+      end
+    end
+
+    Facter.add(:opnsense_minor) do
+      confine :kernel => "FreeBSD"
+      setcode do
+        Facter.value(:opnsense_version).split('.')[1]
+      end
+    end
+
+    Facter.add(:opnsense_patchlevel) do
+      confine :kernel => "FreeBSD"
+      setcode do
+        Facter.value(:opnsense_version).split('.')[2].split('-')[0]
+      end
+    end
+
+    Facter.add(:opnsense_revision) do
+      confine :kernel => "FreeBSD"
+      setcode do
+        Facter.value(:opnsense_version).split('.')[2].split('-')[1]
+      end
+    end
   end
 
 else

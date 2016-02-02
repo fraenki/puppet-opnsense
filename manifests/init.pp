@@ -10,11 +10,11 @@ class opnsense {
 
   case $::operatingsystem {
     'FreeBSD': { }
-    default: { fail("OS $::operatingsystem is not supported") }
+    default: { fail("OS ${::operatingsystem} is not supported") }
   }
 
   if ! $::opnsense {
-    fail("Requires a OPNsense appliance")
+    fail('Requires an OPNsense appliance')
   }
 
 }

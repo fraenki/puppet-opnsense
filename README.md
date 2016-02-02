@@ -7,7 +7,6 @@
 - [Usage](#usage)
   - [Create a user](#create-a-user)
   - [Create a group](#create-a-group)
-  - [Manage packages](#manage-packages)
   - [OPNsense facts](#opnsense-facts)
 - [Reference](#reference)
   - [Feature overview](#feature-overview)
@@ -28,7 +27,6 @@ This is intended to be a growing collection of providers and facts. In its curre
 
 * opnsense_user: a provider to manage OPNsense users
 * opnsense_group: a provider to manage OPNsense groups
-* package: a provider to manage native OPNsense packages
 * opnsense_version: facts to gather OPNsense version information
 
 Of course, it would be desirable to have a provider for cronjobs too. Contributions are welcome! :-)
@@ -77,20 +75,6 @@ In this example the group will inherit privileges to its members:
 
 NOTE: The providers are NOT aware of privilege inheritance, see _Limitations_ for details.
 
-###Manage packages
-
-You need to enable a helper class. This will install a command line tool to keep the provider simple:
-
-    class { 'opnsense': }
-
-Now you can use it like any other package provider:
-
-    package { 'iftop':
-      ensure => 'present',
-    }
-
-NOTE: Package names on OPNsense are case-sensitive. You need to write 'Cron' instead of 'cron' to install the package.
-
 ###Deleting resources
 
 This provider does NOT purge unmanaged resources. So you need to define a resource as 'absent' if you want it to be removed:
@@ -107,9 +91,11 @@ This provider does NOT purge unmanaged resources. So you need to define a resour
 ###OPNsense facts
 
     opnsense => true
-    opnsense_version => 2.1.4-RELEASE
-    opnsense_version_base => 8.3
-    opnsense_version_kernel => 8.1
+    opnsense_version => 16.7.a_52-e82bcae6e
+    opnsense_major => 16
+    opnsense_minor => 7
+    opnsense_patchlevel => a_52
+    opnsense_revision => e82bcae6e
 
 ##Reference
 
