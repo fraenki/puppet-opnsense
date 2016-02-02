@@ -134,7 +134,7 @@ https://github.com/opnsense/core/blob/9d46db1a3c4c3bb35f951e9162aa866c5395b0c1/s
 
 You need to be aware of the following limitations:
 
-* No safety net. If you delete the _admin_ user your OPNsense firewall is lost.
+* No safety net. If you delete the _root_ user your OPNsense firewall is lost.
 * User/group providers are NOT aware of group privilege inheritance.
 * The indention of config.xml will be changed. Prepare for a huge diff when making changes.
 * Removing all unmanaged resources (purge => true) is NOT supported.
