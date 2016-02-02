@@ -1,6 +1,4 @@
-#opnsense
-
-##Table of Contents
+####Table of Contents
 
 - [Overview](#overview)
 - [Module Description](#module-description)
