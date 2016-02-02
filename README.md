@@ -127,8 +127,8 @@ To remove expiry date, set it to absent:
 
 You must specify user/group privileges by using the internal OPNsense names. The provider will not even try to validate privilege names, because OPNsense silently ignores invalid privileges.
 
-A complete list of OPNsense privileges is available in _priv.defs.inc_ from the OPNsense repository:
-https://github.com/opnsense/opnsense/blob/master/etc/inc/priv.defs.inc
+A complete list of OPNsense privileges is available from the OPNsense repository:
+https://github.com/opnsense/core/blob/9d46db1a3c4c3bb35f951e9162aa866c5395b0c1/src/opnsense/mvc/app/models/OPNsense/Core/ACL_Legacy_Page_Map.json
 
 ###Known limitations
 
