@@ -8,6 +8,12 @@
   "project_page": "https://github.com/fraenki/puppet-opnsense",
   "issues_url": "https://github.com/fraenki/puppet-opnsense/issues",
   "description": "This is a collection of providers and facts to manage OPNsense firewalls.",
+  "tags": [
+    "opnsense",
+    "pfsense",
+    "firewall",
+    "freebsd"
+  ],
   "requirements": [
     {
       "name": "puppet",

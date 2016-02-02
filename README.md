@@ -143,3 +143,7 @@ You need to be aware of the following limitations:
 
 Please use the github issues functionality to report any bugs or requests for new features.
 Feel free to fork and submit pull requests for potential contributions.
+
+##Legal
+
+OPNsense® is Copyright © 2014 – 2016 by Deciso B.V. All rights reserved.
