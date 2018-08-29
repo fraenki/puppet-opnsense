@@ -113,7 +113,7 @@ opnsense_group.rb:
 * group management
 * group privilege management
 
-###Additional user parameters
+### Additional user parameters
 
 To set an account expiration date:
 
