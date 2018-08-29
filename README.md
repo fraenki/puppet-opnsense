@@ -1,4 +1,4 @@
-####Table of Contents
+#### Table of Contents
 
 - [Overview](#overview)
 - [Module Description](#module-description)
@@ -13,13 +13,13 @@
   - [Known limitations](#known-limitations)
 - [Development](#development)
 
-##Overview
+## Overview
 
 This is a collection of providers and facts to manage OPNsense firewalls.
 
 NOTE: This is NOT related to the OPNsense project in any way. Do NOT ask the OPNsense developers for support.
 
-##Module Description
+## Module Description
 
 This is intended to be a growing collection of providers and facts. In its current state it provides the following features:
 
@@ -29,9 +29,9 @@ This is intended to be a growing collection of providers and facts. In its curre
 
 Of course, it would be desirable to have a provider for cronjobs too. Contributions are welcome! :-)
 
-##Usage
+## Usage
 
-###Create a user
+### Create a user
 
 This will create a user, but does not grant any permissions.
 
@@ -54,7 +54,7 @@ In our next example the user will have shell access (SSH) to the box and full ac
       ],
     }
 
-###Create a group
+### Create a group
 
 This will create a fully functional group:
 
@@ -73,7 +73,7 @@ In this example the group will inherit privileges to its members:
 
 NOTE: The providers are NOT aware of privilege inheritance, see _Limitations_ for details.
 
-###Deleting resources
+### Deleting resources
 
 This provider does NOT purge unmanaged resources. So you need to define a resource as 'absent' if you want it to be removed:
 
@@ -86,7 +86,7 @@ This provider does NOT purge unmanaged resources. So you need to define a resour
       ensure  => 'absent',
     }
 
-###OPNsense facts
+### OPNsense facts
 
     opnsense => true
     opnsense_version => 16.7.a_52-e82bcae6e
@@ -95,9 +95,9 @@ This provider does NOT purge unmanaged resources. So you need to define a resour
     opnsense_patchlevel => a_52
     opnsense_revision => e82bcae6e
 
-##Reference
+## Reference
 
-###Feature overview
+### Feature overview
 
 opnsense.rb:
 * base provider, includes common functions
@@ -123,14 +123,14 @@ To remove expiry date, set it to absent:
 
     expiry => 'absent'
 
-###Privileges
+### Privileges
 
 You must specify user/group privileges by using the internal OPNsense names. The provider will not even try to validate privilege names, because OPNsense silently ignores invalid privileges.
 
 A complete list of OPNsense privileges is available from the OPNsense repository:
-https://github.com/opnsense/core/blob/9d46db1a3c4c3bb35f951e9162aa866c5395b0c1/src/opnsense/mvc/app/models/OPNsense/Core/ACL_Legacy_Page_Map.json
+https://github.com/opnsense/core/blob/81f1d2552e863f4c2edf7e3eb1fe066cbdcbf177/src/opnsense/mvc/app/models/OPNsense/Core/ACL/ACL.xml
 
-###Known limitations
+### Known limitations
 
 You need to be aware of the following limitations:
 
@@ -139,11 +139,11 @@ You need to be aware of the following limitations:
 * The indention of config.xml will be changed. Prepare for a huge diff when making changes.
 * Removing all unmanaged resources (purge => true) is NOT supported.
 
-##Development
+## Development
 
 Please use the github issues functionality to report any bugs or requests for new features.
 Feel free to fork and submit pull requests for potential contributions.
 
-##Legal
+## Legal
 
-OPNsense® is Copyright © 2014 – 2016 by Deciso B.V. All rights reserved.
+OPNsense® is Copyright © 2014 – 2018 by Deciso B.V. All rights reserved.
