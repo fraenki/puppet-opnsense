@@ -1,3 +1,5 @@
+**PLEASE NOTE:** This module is no longer maintained, efforts have shifted to the excellent [puppet/opnsense](https://github.com/andeman/puppet-opnsense) module!
+
 #### Table of Contents
 
 - [Overview](#overview)

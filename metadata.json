@@ -1,11 +1,11 @@
 {
   "name": "fraenki-opnsense",
-  "version": "0.3.1",
+  "version": "99.99.99",
   "author": "Frank Wall",
   "summary": "Providers and facts for OPNsense",
   "license": "BSD-2-Clause",
   "source": "https://github.com/fraenki/puppet-opnsense",
-  "project_page": "https://github.com/fraenki/puppet-opnsense",
+  "project_page": "https://github.com/andeman/puppet-opnsense",
   "issues_url": "https://github.com/fraenki/puppet-opnsense/issues",
   "description": "This is a collection of providers and facts to manage OPNsense firewalls.",
   "tags": [
